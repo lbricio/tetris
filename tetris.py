@@ -94,20 +94,25 @@ class Game():
             self.current_piece = Piece()
         current_position = [self.current_piece.x, self.current_piece.y]
         for event in pygame.event.get():
+            
             if event.type == pygame.QUIT:
                 global game_is_running
                 game_is_running = False
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     new_position = [current_position[0] - 1, current_position[1]]
                     if not self.current_piece.check_collision(self.current_piece.type, self.stack, new_position):
                         self.current_piece.x = new_position[0]
+
                 elif event.key == pygame.K_RIGHT:
                     new_position = [current_position[0] + 1, current_position[1]]
                     if not self.current_piece.check_collision(self.current_piece.type, self.stack, new_position):
                         self.current_piece.x = new_position[0]
+
                 elif event.key == pygame.K_DOWN:
                     self.current_piece.speed = 0.2
+
                 elif event.key == pygame.K_UP:
                     rotated_piece = self.current_piece.rotate(self.current_piece.type)
                     if not self.current_piece.check_collision(rotated_piece, self.stack, current_position):
