@@ -7,12 +7,12 @@ python3 tetris.py
 ```
 
 ## commands
-| Tecla     | Ação                        |
+| key     | action                        |
 | --------- | ---------------------------- |
-| `left`    | Mover para a esquerda       |
-| `right`   | Mover para a direita        |
-| `up`      | Rotacionar a peça           |
-| `down`    | Acelerar a queda             |
+| `right`   | mofe right        |
+| `left`    | move left       |
+| `up`      | rotate piece           |
+| `down`    | accelerate fall             |
 
 ## added feature
 - pieces rotate like original tetris
