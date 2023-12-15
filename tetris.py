@@ -76,25 +76,28 @@ class Piece():
                         return True
         return False
 
-class Game():
+class Board():
+    def __init__(self):
+        self.stack = self.create_empty_stack()
+
+    def create_empty_stack(self):
+        return [[0] * (WIDTH // GRID_SIZE) for _ in range(HEIGHT // GRID_SIZE)]
+
+class TetrisGame():
     def __init__(self):
         pygame.init()
         pygame.display.set_caption("Tetris")
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
-        self.stack = self.create_empty_stack()
+        self.board = Board()
         self.current_piece = None
         self.overtime = 0
-
-    def create_empty_stack(self):
-        return [[0] * (WIDTH // GRID_SIZE) for _ in range(HEIGHT // GRID_SIZE)]
 
     def handle_event(self):
         if self.current_piece is None:
             self.current_piece = Piece()
         current_position = [self.current_piece.x, self.current_piece.y]
         for event in pygame.event.get():
-            
             if event.type == pygame.QUIT:
                 global game_is_running
                 game_is_running = False
@@ -102,12 +105,12 @@ class Game():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     new_position = [current_position[0] - 1, current_position[1]]
-                    if not self.current_piece.check_collision(self.current_piece.type, self.stack, new_position):
+                    if not self.current_piece.check_collision(self.current_piece.type, self.board.stack, new_position):
                         self.current_piece.x = new_position[0]
 
                 elif event.key == pygame.K_RIGHT:
                     new_position = [current_position[0] + 1, current_position[1]]
-                    if not self.current_piece.check_collision(self.current_piece.type, self.stack, new_position):
+                    if not self.current_piece.check_collision(self.current_piece.type, self.board.stack, new_position):
                         self.current_piece.x = new_position[0]
 
                 elif event.key == pygame.K_DOWN:
@@ -115,13 +118,13 @@ class Game():
 
                 elif event.key == pygame.K_UP:
                     rotated_piece = self.current_piece.rotate(self.current_piece.type)
-                    if not self.current_piece.check_collision(rotated_piece, self.stack, current_position):
+                    if not self.current_piece.check_collision(rotated_piece, self.board.stack, current_position):
                         self.current_piece.type = rotated_piece
 
     def game_update(self):
         new_position = [self.current_piece.x, self.current_piece.y + self.current_piece.speed]
 
-        if not self.current_piece.check_collision(self.current_piece.type, self.stack, new_position):
+        if not self.current_piece.check_collision(self.current_piece.type, self.board.stack, new_position):
             self.current_piece.x = new_position[0]
             self.current_piece.y = new_position[1]
             self.overtime = 0.5 * FPS
@@ -132,23 +135,23 @@ class Game():
             for y, row in enumerate(self.current_piece.type):
                 for x, cell in enumerate(row):
                     if self.current_piece.type[y][x] == 1:
-                        self.stack[y + int(self.current_piece.y)][x + int(self.current_piece.x)] = self.current_piece.color
+                        self.board.stack[y + int(self.current_piece.y)][x + int(self.current_piece.x)] = self.current_piece.color
             self.current_piece = None
             # destroi linhas horizontal completas
             delete_line = []
-            for y, row in enumerate(self.stack):
+            for y, row in enumerate(self.board.stack):
                 for x, cell in enumerate(row):
                     if cell == 0:
                         break
                     if x == len(row)-1:
                         delete_line.append(y)
             for line in delete_line:
-                for y, x in enumerate(self.stack[line], -1):
-                    self.stack[line][y] = 0
+                for y, x in enumerate(self.board.stack[line], -1):
+                    self.board.stack[line][y] = 0
                 # atualizar linhas acima da deletada
-                for y, row in reversed(list(enumerate(self.stack))):
+                for y, row in reversed(list(enumerate(self.board.stack))):
                     if y > 0 and y <= line:
-                        self.stack[y] = self.stack[y-1]
+                        self.board.stack[y] = self.board.stack[y-1]
             delete_line.clear()
 
     def render_screen(self):
@@ -164,11 +167,11 @@ class Game():
                             (y-1) * GRID_SIZE + self.current_piece.y * GRID_SIZE,
                             GRID_SIZE, GRID_SIZE))
         # draw grid lines
-        for y, row in enumerate(self.stack):
+        for y, row in enumerate(self.board.stack):
             for x, cell in enumerate(row):
                 pygame.draw.rect(self.screen, WHITE, (x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE), 1)
         # draw block stack
-        for y, row in enumerate(self.stack):
+        for y, row in enumerate(self.board.stack):
             for x, cell_color in enumerate(row):
                 if cell_color:
                     pygame.draw.rect(self.screen, cell_color, (x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE, GRID_SIZE))
@@ -180,7 +183,7 @@ class Game():
         quit()
 
 def main():
-    game = Game()
+    game = TetrisGame()
 
     while game_is_running is True:
         game.handle_event()
